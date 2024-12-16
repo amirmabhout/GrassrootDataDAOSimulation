@@ -137,4 +137,3 @@ This project is open source and available under the MIT License.
 ## Acknowledgments
 
 - Built with PyAutoGen for agent simulation
-- Inspired by real-world Data DAO ecosystems
