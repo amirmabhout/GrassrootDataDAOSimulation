@@ -23,30 +23,30 @@ async def main():
     # Price over time
     plt.subplot(2, 2, 1)
     plt.plot(sim_data['price'])
-    plt.title('Token Price Over Time')
+    plt.title('dDT Price Over Time')
     plt.xlabel('Step')
-    plt.ylabel('Price ($)')
+    plt.ylabel('Price (xDAI)')
     
-    # LP Token Reserve over time
+    # LP dDT Reserve over time
     plt.subplot(2, 2, 2)
-    plt.plot(sim_data['lp_token_reserve'])
-    plt.title('LP Token Reserve Over Time')
+    plt.plot(sim_data['lp_dDT_reserve'])
+    plt.title('LP dDT Reserve Over Time')
     plt.xlabel('Step')
-    plt.ylabel('Tokens')
+    plt.ylabel('dDT')
     
-    # LP Dollar Reserve over time
+    # LP xDAI Reserve over time
     plt.subplot(2, 2, 3)
-    plt.plot(sim_data['lp_dollar_reserve'])
-    plt.title('LP Dollar Reserve Over Time')
+    plt.plot(sim_data['lp_xDAI_reserve'])
+    plt.title('LP xDAI Reserve Over Time')
     plt.xlabel('Step')
-    plt.ylabel('Dollars ($)')
+    plt.ylabel('xDAI')
     
-    # The Pie tokens over time
+    # The Pie dDT over time
     plt.subplot(2, 2, 4)
-    plt.plot(sim_data['the_pie_tokens'])
-    plt.title('The Pie Tokens Over Time')
+    plt.plot(sim_data['the_pie_dDT'])
+    plt.title('The Pie dDT Over Time')
     plt.xlabel('Step')
-    plt.ylabel('Tokens')
+    plt.ylabel('dDT')
     
     plt.tight_layout()
     plt.savefig('simulation_results.png')

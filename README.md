@@ -10,7 +10,7 @@ When members use dataDAO tokens to access computations as part of services, thes
 - **Data Pool**: The collection of datasets contributed by all dataDAO members.
 - **Contribution Weight**: A calculated value representing each member's data contribution, factoring in both the quality (confidence, credibility, etc) and quantity (amount in Kb, knowledge triplets, etc) of the data provided.
 - **The Pie**: A smart contract that stores dataDAO tokens spent on computing services using the Data Pool.
-- **dataDAO Tokens**: Issued to members when they lock their personal $CRC, up to a maximum proportional to their Contribution Weight. These tokens grant compute access to the Data Pool.
+- **dataDAO Tokens $dDT**: Issued to members when they lock their personal $CRC, up to a maximum proportional to their Contribution Weight. These tokens grant compute access to the Data Pool.
 
 ### Data Ownership, Privacy and Governance
 To ensure data ownership, access control, and privacy, it is up to the dataDAO operators to choose the appropriate technologies and protocols best suited for the AI services running on the data pool. These setups can gradually be governed by the dataDAO members, allowing for collaborative decision-making. Each member should be able to provide granular access control, specifying use cases where they permit or restrict their data from being included in computation services or being removed altogether from the data pool.
@@ -25,15 +25,15 @@ The simulation explores how these different motivations and behaviors impact the
 
 ### Agent Types
 
-- **Degen Users**: Data contributors focused on quick returns. They contribute data to mint tokens which they typically sell in the market to cash out. A small portion (10%) of these users also provide liquidity to the pool, benefiting from trading fees while waiting for optimal exit prices. These users rarely use the actual compute services.
+- **Degen Users**: Data contributors focused on quick returns. They contribute data to mint $dDT which they typically sell in the market to cash out. A small portion (10%) of these users also provide liquidity to the pool, benefiting from trading fees while waiting for optimal exit prices. These users rarely use the actual compute services.
 
-- **Organization Agents**: Large entities (like AI companies or research institutions) with significant capital who purchase tokens solely to access the dataDAO's compute services. They represent the primary demand side of the ecosystem, regularly buying tokens from the market for service usage.
+- **Organizations**: Large entities (like AI companies or research institutions) with significant capital who purchase $dDT solely to access the dataDAO's compute services. They represent the primary demand side of the ecosystem, regularly buying $dDT from the market for service usage.
 
-- **Power Users**: Active participants who use the dataDAO's services more than they contribute data. While they do contribute data and mint tokens, their compute usage exceeds their minted amount, requiring them to regularly purchase additional tokens from the market.
+- **Power Users**: Active participants who use the dataDAO's services more than they contribute data. While they do contribute data and mint $dDT, their compute usage exceeds their minted amount, requiring them to regularly purchase additional $dDT from the market.
 
-- **Most Active Users**: Regular participants who consistently contribute data and use compute services, representing the core user base of the dataDAO. They maintain a balanced approach between contribution and usage.
+- **Active Users**: Regular participants who consistently contribute data and use compute services, representing the core user base of the dataDAO. They maintain a balanced approach between contribution and usage.
 
-- **Least Active Users**: Occasional participants who contribute minimal data, mint tokens, and might later sell their data tokens in the market. They show irregular patterns of engagement with the ecosystem.
+- **Casual Users**: Occasional participants who contribute minimal data, mint $dDT, and might later sell their $dDT in the market. They show irregular patterns of engagement with the ecosystem.
 
 ## Simulation Components
 
@@ -41,10 +41,10 @@ The simulation explores how these different motivations and behaviors impact the
 
 The simulation monitors several key indicators of ecosystem health:
 
-- **Token Price Dynamics**: Shows the market's valuation of compute access to the data pool
-- **Liquidity Pool Reserves**: Tracks the availability of tokens and stable coins for trading
+- **Token Price Dynamics**: Shows the market's valuation of compute access to the data pool in xDAI
+- **Liquidity Pool Reserves**: Tracks the availability of dDT and xDAI for trading
 - **The Pie Accumulation**: Measures the growth of the ecosystem fund from compute service usage
-- **Agent Interactions**: Records all token transactions, liquidity provisions, and compute service usage
+- **Agent Interactions**: Records all dDT transactions, liquidity provisions, and compute service usage
 
 ## Getting Started
 

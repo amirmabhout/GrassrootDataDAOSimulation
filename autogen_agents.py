@@ -4,54 +4,54 @@ from liquidity_pool import LiquidityPool
 import pandas as pd
 
 class BaseAutoAgent:
-    def __init__(self, name: str, initial_tokens: float, initial_dollars: float, **kwargs):
+    def __init__(self, name: str, initial_ddt: float, initial_xdai: float, **kwargs):
         self.name = name
-        self.tokens = initial_tokens
-        self.dollars = initial_dollars
-        self.tokens_spent = 0
+        self.ddt = initial_ddt
+        self.xdai = initial_xdai
+        self.ddt_spent = 0
         self.transaction_history = []
     
-    def record_transaction(self, action: str, tokens: float, dollars: float):
+    def record_transaction(self, action: str, ddt: float, xdai: float):
         self.transaction_history.append({
             'agent': self.name,
             'action': action,
-            'tokens': tokens,
-            'dollars': dollars,
-            'tokens_balance': self.tokens,
-            'dollars_balance': self.dollars
+            'ddt': ddt,
+            'xdai': xdai,
+            'ddt_balance': self.ddt,
+            'xdai_balance': self.xdai
         })
 
 class ThePie:
-    """The Pie accumulates all spent tokens from the ecosystem"""
+    """The Pie accumulates all spent dDT from the ecosystem"""
     def __init__(self):
-        self.total_tokens = 0
+        self.total_ddt = 0
         self.transactions = []
     
-    def receive_tokens(self, amount: float, from_agent: str):
-        self.total_tokens += amount
+    def receive_ddt(self, amount: float, from_agent: str):
+        self.total_ddt += amount
         self.transactions.append({
             'from': from_agent,
             'amount': amount,
-            'total_after': self.total_tokens
+            'total_after': self.total_ddt
         })
 
 class DegenAgent(BaseAutoAgent):
     def __init__(self, name: str, liquidity_pool: LiquidityPool, config: Dict[str, Any]):
         super().__init__(name=name, 
-                        initial_tokens=config['initial_tokens'],
-                        initial_dollars=config['initial_dollars'])
+                        initial_ddt=config['initial_ddt'],
+                        initial_xdai=config['initial_xdai'])
         self.liquidity_pool = liquidity_pool
-        self.lp_tokens = 0
+        self.lp_ddt = 0
         self.has_provided_liquidity = False
-        self.has_dumped_tokens = False
+        self.has_dumped_ddt = False
         self.reinvest_rate = config['reinvest_rate']
         self.fees_earned = 0
         
-        # Provide initial liquidity with 10% of tokens
+        # Provide initial liquidity with 10% of dDT
         initial_liq = config['initial_liquidity']
-        self.lp_tokens = self.liquidity_pool.add_liquidity(initial_liq, initial_liq)
-        self.tokens -= initial_liq
-        self.dollars -= initial_liq
+        self.lp_ddt = self.liquidity_pool.add_liquidity(initial_liq, initial_liq)
+        self.ddt -= initial_liq
+        self.xdai -= initial_liq
         self.record_transaction('provide_liquidity', initial_liq, initial_liq)
         self.has_provided_liquidity = True
     
@@ -59,137 +59,137 @@ class DegenAgent(BaseAutoAgent):
         current_price = self.liquidity_pool.get_price()
         
         # Calculate fees earned since last step
-        new_fees = self.liquidity_pool.get_fees_earned(self.lp_tokens) - self.fees_earned
+        new_fees = self.liquidity_pool.get_fees_earned(self.lp_ddt) - self.fees_earned
         self.fees_earned += new_fees
         
         # Reinvest portion of fees into liquidity
         if new_fees > 0:
             reinvest_amount = new_fees * self.reinvest_rate
             if reinvest_amount > 0:
-                tokens_to_add = reinvest_amount / current_price
-                if self.tokens >= tokens_to_add and self.dollars >= reinvest_amount:
-                    new_lp_tokens = self.liquidity_pool.add_liquidity(tokens_to_add, reinvest_amount)
-                    self.lp_tokens += new_lp_tokens
-                    self.tokens -= tokens_to_add
-                    self.dollars -= reinvest_amount
-                    self.record_transaction('reinvest_fees', tokens_to_add, reinvest_amount)
+                ddt_to_add = reinvest_amount / current_price
+                if self.ddt >= ddt_to_add and self.xdai >= reinvest_amount:
+                    new_lp_ddt = self.liquidity_pool.add_liquidity(ddt_to_add, reinvest_amount)
+                    self.lp_ddt += new_lp_ddt
+                    self.ddt -= ddt_to_add
+                    self.xdai -= reinvest_amount
+                    self.record_transaction('reinvest_fees', ddt_to_add, reinvest_amount)
         
-        # Dump remaining tokens if haven't done so yet
-        if not self.has_dumped_tokens and self.tokens > 0:
-            tokens_to_sell = self.tokens  # Sell all remaining tokens
-            dollars_received = self.liquidity_pool.sell_tokens(tokens_to_sell)
-            if dollars_received > 0:
-                self.tokens = 0  # All tokens sold
-                self.dollars += dollars_received
-                self.record_transaction('dump_tokens', tokens_to_sell, dollars_received)
-                self.has_dumped_tokens = True
+        # Dump remaining dDT if haven't done so yet
+        if not self.has_dumped_ddt and self.ddt > 0:
+            ddt_to_sell = self.ddt  # Sell all remaining dDT
+            xdai_received = self.liquidity_pool.sell_ddt(ddt_to_sell)
+            if xdai_received > 0:
+                self.ddt = 0  # All dDT sold
+                self.xdai += xdai_received
+                self.record_transaction('dump_ddt', ddt_to_sell, xdai_received)
+                self.has_dumped_ddt = True
 
-class OrgAgent(BaseAutoAgent):
+class OrganizationAgent(BaseAutoAgent):
     def __init__(self, name: str, liquidity_pool: LiquidityPool, the_pie: ThePie, config: Dict[str, Any]):
         super().__init__(name=name,
-                        initial_tokens=config['initial_tokens'],
-                        initial_dollars=config['initial_dollars'])
+                        initial_ddt=config['initial_ddt'],
+                        initial_xdai=config['initial_xdai'])
         self.liquidity_pool = liquidity_pool
         self.the_pie = the_pie
-        self.daily_token_buy = config['daily_token_buy']
+        self.daily_ddt_buy = config['daily_ddt_buy']
     
     async def step(self):
         # Organizations always try to buy their daily amount
         current_price = self.liquidity_pool.get_price()
-        dollars_needed = self.daily_token_buy * current_price
+        xdai_needed = self.daily_ddt_buy * current_price
         
-        if self.dollars >= dollars_needed:
-            tokens_received = self.liquidity_pool.buy_tokens(dollars_needed)
-            if tokens_received > 0:
-                self.dollars -= dollars_needed
-                self.tokens += tokens_received
-                self.record_transaction('buy', tokens_received, dollars_needed)
+        if self.xdai >= xdai_needed:
+            ddt_received = self.liquidity_pool.buy_ddt(xdai_needed)
+            if ddt_received > 0:
+                self.xdai -= xdai_needed
+                self.ddt += ddt_received
+                self.record_transaction('buy', ddt_received, xdai_needed)
                 
-                # Immediately spend the tokens
-                self.the_pie.receive_tokens(tokens_received, self.name)
-                self.tokens -= tokens_received
-                self.record_transaction('spend_to_pie', tokens_received, 0)
-
-class MostActiveUserAgent(BaseAutoAgent):
-    def __init__(self, name: str, liquidity_pool: LiquidityPool, the_pie: ThePie, config: Dict[str, Any]):
-        super().__init__(name=name,
-                        initial_tokens=config['initial_tokens'],
-                        initial_dollars=config['initial_dollars'])
-        self.liquidity_pool = liquidity_pool
-        self.the_pie = the_pie
-        self.daily_spend = config['daily_spend']
-    
-    async def step(self):
-        # Simply spend tokens if available
-        if self.tokens >= self.daily_spend:
-            self.tokens -= self.daily_spend
-            self.the_pie.receive_tokens(self.daily_spend, self.name)
-            self.record_transaction('spend_to_pie', self.daily_spend, 0)
-
-class LeastActiveUserAgent(BaseAutoAgent):
-    def __init__(self, name: str, liquidity_pool: LiquidityPool, the_pie: ThePie, config: Dict[str, Any]):
-        super().__init__(name=name,
-                        initial_tokens=config['initial_tokens'],
-                        initial_dollars=config['initial_dollars'])
-        self.liquidity_pool = liquidity_pool
-        self.the_pie = the_pie
-        self.daily_spend = config['daily_spend']
-        self.keep_tokens = config['keep_tokens']
-    
-    async def step(self):
-        # First spend daily amount if available
-        if self.tokens >= self.daily_spend:
-            self.tokens -= self.daily_spend
-            self.the_pie.receive_tokens(self.daily_spend, self.name)
-            self.record_transaction('spend_to_pie', self.daily_spend, 0)
-            
-            # Then sell excess tokens if we have more than we want to keep
-            if self.tokens > self.keep_tokens:
-                tokens_to_sell = self.tokens - self.keep_tokens
-                dollars_received = self.liquidity_pool.sell_tokens(tokens_to_sell)
-                if dollars_received > 0:
-                    self.tokens -= tokens_to_sell
-                    self.dollars += dollars_received
-                    self.record_transaction('sell_excess', tokens_to_sell, dollars_received)
+                # Immediately spend the dDT
+                self.the_pie.receive_ddt(ddt_received, self.name)
+                self.ddt -= ddt_received
+                self.record_transaction('spend_to_pie', ddt_received, 0)
 
 class PowerUserAgent(BaseAutoAgent):
     def __init__(self, name: str, liquidity_pool: LiquidityPool, the_pie: ThePie, config: Dict[str, Any]):
         super().__init__(name=name,
-                        initial_tokens=config['initial_tokens'],
-                        initial_dollars=config['initial_dollars'])
+                        initial_ddt=config['initial_ddt'],
+                        initial_xdai=config['initial_xdai'])
         self.liquidity_pool = liquidity_pool
         self.the_pie = the_pie
         self.daily_spend = config['daily_spend']
     
     async def step(self):
-        # Try to spend tokens if available
-        if self.tokens >= self.daily_spend:
-            self.tokens -= self.daily_spend
-            self.the_pie.receive_tokens(self.daily_spend, self.name)
+        # Try to spend dDT if available
+        if self.ddt >= self.daily_spend:
+            self.ddt -= self.daily_spend
+            self.the_pie.receive_ddt(self.daily_spend, self.name)
             self.record_transaction('spend_to_pie', self.daily_spend, 0)
-        # If we don't have enough tokens, try to buy some
-        elif self.tokens < self.daily_spend:
+        # If we don't have enough dDT, try to buy some
+        elif self.ddt < self.daily_spend:
             current_price = self.liquidity_pool.get_price()
-            dollars_needed = self.daily_spend * current_price
+            xdai_needed = self.daily_spend * current_price
             
-            if self.dollars >= dollars_needed:
-                tokens_received = self.liquidity_pool.buy_tokens(dollars_needed)
-                if tokens_received > 0:
-                    self.dollars -= dollars_needed
-                    self.tokens += tokens_received
-                    self.record_transaction('buy', tokens_received, dollars_needed)
+            if self.xdai >= xdai_needed:
+                ddt_received = self.liquidity_pool.buy_ddt(xdai_needed)
+                if ddt_received > 0:
+                    self.xdai -= xdai_needed
+                    self.ddt += ddt_received
+                    self.record_transaction('buy', ddt_received, xdai_needed)
                     
                     # Now try to spend
-                    if self.tokens >= self.daily_spend:
-                        self.tokens -= self.daily_spend
-                        self.the_pie.receive_tokens(self.daily_spend, self.name)
+                    if self.ddt >= self.daily_spend:
+                        self.ddt -= self.daily_spend
+                        self.the_pie.receive_ddt(self.daily_spend, self.name)
                         self.record_transaction('spend_to_pie', self.daily_spend, 0)
+
+class ActiveUserAgent(BaseAutoAgent):
+    def __init__(self, name: str, liquidity_pool: LiquidityPool, the_pie: ThePie, config: Dict[str, Any]):
+        super().__init__(name=name,
+                        initial_ddt=config['initial_ddt'],
+                        initial_xdai=config['initial_xdai'])
+        self.liquidity_pool = liquidity_pool
+        self.the_pie = the_pie
+        self.daily_spend = config['daily_spend']
+    
+    async def step(self):
+        # Simply spend dDT if available
+        if self.ddt >= self.daily_spend:
+            self.ddt -= self.daily_spend
+            self.the_pie.receive_ddt(self.daily_spend, self.name)
+            self.record_transaction('spend_to_pie', self.daily_spend, 0)
+
+class CasualUserAgent(BaseAutoAgent):
+    def __init__(self, name: str, liquidity_pool: LiquidityPool, the_pie: ThePie, config: Dict[str, Any]):
+        super().__init__(name=name,
+                        initial_ddt=config['initial_ddt'],
+                        initial_xdai=config['initial_xdai'])
+        self.liquidity_pool = liquidity_pool
+        self.the_pie = the_pie
+        self.daily_spend = config['daily_spend']
+        self.keep_ddt = config['keep_ddt']
+    
+    async def step(self):
+        # First spend daily amount if available
+        if self.ddt >= self.daily_spend:
+            self.ddt -= self.daily_spend
+            self.the_pie.receive_ddt(self.daily_spend, self.name)
+            self.record_transaction('spend_to_pie', self.daily_spend, 0)
+            
+            # Then sell excess dDT if we have more than we want to keep
+            if self.ddt > self.keep_ddt:
+                ddt_to_sell = self.ddt - self.keep_ddt
+                xdai_received = self.liquidity_pool.sell_ddt(ddt_to_sell)
+                if xdai_received > 0:
+                    self.ddt -= ddt_to_sell
+                    self.xdai += xdai_received
+                    self.record_transaction('sell_excess', ddt_to_sell, xdai_received)
 
 class DataDAOGroupChat:
     def __init__(self, config: Dict[str, Any]):
         self.liquidity_pool = LiquidityPool(
-            initial_tokens=config['SIM_CONFIG']['initial_pool_tokens'],
-            initial_dollars=config['SIM_CONFIG']['initial_pool_dollars'],
+            initial_ddt=config['SIM_CONFIG']['initial_pool_ddt'],
+            initial_xdai=config['SIM_CONFIG']['initial_pool_xdai'],
             fee_rate=config['SIM_CONFIG']['fee_rate']
         )
         
@@ -203,9 +203,9 @@ class DataDAOGroupChat:
         
         self.data = {
             'price': [],
-            'lp_token_reserve': [],
-            'lp_dollar_reserve': [],
-            'the_pie_tokens': [],
+            'lp_dDT_reserve': [],
+            'lp_xDAI_reserve': [],
+            'the_pie_dDT': [],
             'active_degens': []
         }
     
@@ -222,8 +222,8 @@ class DataDAOGroupChat:
         # Initialize other agents
         agent_types = {
             'power_user': PowerUserAgent,
-            'most_active_user': MostActiveUserAgent,
-            'least_active_user': LeastActiveUserAgent
+            'active_user': ActiveUserAgent,
+            'casual_user': CasualUserAgent
         }
         
         for agent_type, agent_class in agent_types.items():
@@ -242,8 +242,8 @@ class DataDAOGroupChat:
             print(f"Step {step + 1}/{steps}")
             
             # Add orgs after specified steps
-            if step == steps_before_orgs:
-                self._add_org_agents(self.config['AGENT_CONFIGS']['org_agent'])
+            if steps_before_orgs > 0 and step == steps_before_orgs:
+                self._add_org_agents(self.config['AGENT_CONFIGS']['organization'])
             
             # Check price and add degens if needed
             current_price = self.liquidity_pool.get_price()
@@ -260,13 +260,13 @@ class DataDAOGroupChat:
             # Record data every 10 steps
             if (step + 1) % 10 == 0:
                 self.data['price'].append(self.liquidity_pool.get_price())
-                self.data['lp_token_reserve'].append(self.liquidity_pool.token_reserve)
-                self.data['lp_dollar_reserve'].append(self.liquidity_pool.dollar_reserve)
-                self.data['the_pie_tokens'].append(self.the_pie.total_tokens)
+                self.data['lp_dDT_reserve'].append(self.liquidity_pool.ddt_reserve)
+                self.data['lp_xDAI_reserve'].append(self.liquidity_pool.xdai_reserve)
+                self.data['the_pie_dDT'].append(self.the_pie.total_ddt)
                 self.data['active_degens'].append(self.total_degens)
                 
                 print(f"Current token price: ${self.liquidity_pool.get_price():.2f}")
-                print(f"The Pie tokens: {self.the_pie.total_tokens:.2f}")
+                print(f"The Pie dDT: {self.the_pie.total_ddt:.2f}")
                 print(f"Active Degens: {self.total_degens}")
     
     def _add_degen_agents(self, count: int):
@@ -281,7 +281,7 @@ class DataDAOGroupChat:
     
     def _add_org_agents(self, config: Dict[str, Any]):
         for i in range(config['count']):
-            agent = OrgAgent(
+            agent = OrganizationAgent(
                 f"Org_{i}",
                 self.liquidity_pool,
                 self.the_pie,
