@@ -1,59 +1,50 @@
-from typing import Dict, Any
-from dotenv import load_dotenv
-import os
-
-# Load environment variables
-load_dotenv()
-
-def get_env_float(key: str, default: float) -> float:
-    return float(os.getenv(key, default))
-
-def get_env_int(key: str, default: int) -> int:
-    return int(os.getenv(key, default))
-
 # Configuration
 CONFIG = {
     'SIM_CONFIG': {
-        'initial_pool_ddt': get_env_float('INITIAL_POOL_DDT', 1000),
-        'initial_pool_xdai': get_env_float('INITIAL_POOL_XDAI', 1000),
-        'total_steps': get_env_int('TOTAL_STEPS', 100),
-        'steps_before_orgs': get_env_int('STEPS_BEFORE_ORGS', 30),
-        'fee_rate': get_env_float('FEE_RATE', 0.003),
-        'degen_entry_price': get_env_float('DEGEN_ENTRY_PRICE', 0.05),
-        'max_degens': get_env_int('MAX_DEGENS', 40)
+        'total_steps': 1000,  # Changed from 100 to 300
+        'entry_steps': 5,  # Add agents every 5 steps
+        'agents_per_entry': 10,  # Total agents to add per entry
+        'fee_rate': 0.003,
+        'proportions': {
+            'degen_user': 0.40,    # 40% degens
+            'organization': 0.05,   # 5% orgs
+            'power_user': 0.05,    # 5% power users
+            'active_user': 0.30,    # 30% active users
+            'casual_user': 0.20     # 20% casual users
+        }
     },
     'AGENT_CONFIGS': {
         'degen_user': {
-            'count': get_env_int('DEGEN_COUNT', 5),
-            'initial_ddt': get_env_float('DEGEN_INITIAL_DDT', 100),
-            'initial_xdai': get_env_float('DEGEN_INITIAL_XDAI', 10),
-            'initial_liquidity': get_env_float('DEGEN_INITIAL_LIQUIDITY', 10),
-            'reinvest_rate': get_env_float('DEGEN_REINVEST_RATE', 0.5)
+            'count': 4,  # Start with 40% of initial 10
+            'initial_ddt': 100,
+            'initial_xdai': 10,
+            'reinvest_rate': 0.5
         },
         'organization': {
-            'count': get_env_int('ORG_COUNT', 5),
+            'count': 1,  # Start with 5% of initial 10
             'initial_ddt': 0,
-            'initial_xdai': get_env_float('ORG_INITIAL_XDAI', 1000000),
-            'daily_ddt_buy': get_env_float('ORG_DAILY_DDT_BUY', 2)
+            'initial_xdai': 1000,  # Changed from 1000000 to 1000
+            'daily_ddt_buy': 2
         },
         'power_user': {
-            'count': get_env_int('POWER_USER_COUNT', 5),
-            'initial_ddt': get_env_float('POWER_USER_INITIAL_DDT', 100),
-            'initial_xdai': get_env_float('POWER_USER_INITIAL_XDAI', 1000),
-            'daily_spend': get_env_float('POWER_USER_DAILY_SPEND', 2)
+            'count': 1,  # Start with 5% of initial 10
+            'initial_ddt': 100,
+            'initial_xdai': 100,
+            'daily_spend': 2,
+            'max_buy_price': 2.0
         },
         'active_user': {
-            'count': get_env_int('ACTIVE_USER_COUNT', 30),
-            'initial_ddt': get_env_float('ACTIVE_USER_INITIAL_DDT', 100),
-            'initial_xdai': get_env_float('ACTIVE_USER_INITIAL_XDAI', 100),
-            'daily_spend': get_env_float('ACTIVE_USER_DAILY_SPEND', 1)
+            'count': 3,  # Start with 30% of initial 10
+            'initial_ddt': 100,
+            'initial_xdai': 0,
+            'daily_spend': 1
         },
         'casual_user': {
-            'count': get_env_int('CASUAL_USER_COUNT', 20),
-            'initial_ddt': get_env_float('CASUAL_USER_INITIAL_DDT', 100),
-            'initial_xdai': get_env_float('CASUAL_USER_INITIAL_XDAI', 100),
-            'daily_spend': get_env_float('CASUAL_USER_DAILY_SPEND', 1),
-            'keep_ddt': get_env_float('CASUAL_USER_KEEP_DDT', 20)
+            'count': 2,  # Start with 20% of initial 10
+            'initial_ddt': 100,
+            'initial_xdai': 0,
+            'daily_spend': 0.1,
+            'sell_threshold': 1.0
         }
     }
 }

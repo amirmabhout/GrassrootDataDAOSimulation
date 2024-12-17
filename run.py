@@ -4,21 +4,17 @@ from autogen_agents import DataDAOGroupChat
 from config import CONFIG
 
 async def main():
-    # Initialize simulation
-    dao_chat = DataDAOGroupChat(CONFIG)
+    # Initialize the simulation
+    sim = DataDAOGroupChat(CONFIG)
     
-    # Run simulation
-    await dao_chat.simulate(
-        steps=CONFIG['SIM_CONFIG']['total_steps'],
-        steps_before_orgs=CONFIG['SIM_CONFIG']['steps_before_orgs']
-    )
+    # Run the simulation
+    await sim.simulate(CONFIG['SIM_CONFIG']['total_steps'])
     
     # Get simulation data
-    sim_data = dao_chat.get_simulation_data()
-    agent_data = dao_chat.get_agent_data()
+    sim_data = sim.get_simulation_data()
     
-    # Plot results
-    plt.figure(figsize=(12, 8))
+    # Create figure with subplots
+    plt.figure(figsize=(15, 10))
     
     # Price over time
     plt.subplot(2, 2, 1)
@@ -27,34 +23,41 @@ async def main():
     plt.xlabel('Step')
     plt.ylabel('Price (xDAI)')
     
-    # LP dDT Reserve over time
+    # LP Reserves over time
     plt.subplot(2, 2, 2)
-    plt.plot(sim_data['lp_dDT_reserve'])
-    plt.title('LP dDT Reserve Over Time')
+    plt.plot(sim_data['lp_dDT_reserve'], label='dDT')
+    plt.plot(sim_data['lp_xDAI_reserve'], label='xDAI')
+    plt.title('LP Reserves Over Time')
     plt.xlabel('Step')
-    plt.ylabel('dDT')
+    plt.ylabel('Amount')
+    plt.legend()
     
-    # LP xDAI Reserve over time
+    # xDAI balances over time
     plt.subplot(2, 2, 3)
-    plt.plot(sim_data['lp_xDAI_reserve'])
-    plt.title('LP xDAI Reserve Over Time')
+    agent_types = ['degen_user', 'organization', 'power_user', 'active_user', 'casual_user']
+    for agent_type in agent_types:
+        plt.plot(sim_data[f'xdai_{agent_type}'], label=agent_type)
+    plt.title('Average xDAI Holdings per Agent Type')
     plt.xlabel('Step')
-    plt.ylabel('xDAI')
+    plt.ylabel('xDAI per Agent')
+    plt.legend()
     
-    # The Pie dDT over time
+    # Agent counts over time
     plt.subplot(2, 2, 4)
-    plt.plot(sim_data['the_pie_dDT'])
-    plt.title('The Pie dDT Over Time')
+    for agent_type in agent_types:
+        plt.plot(sim_data[f'active_{agent_type}s'], label=agent_type)
+    plt.title('Agent Counts Over Time')
     plt.xlabel('Step')
-    plt.ylabel('dDT')
+    plt.ylabel('Count')
+    plt.legend()
     
     plt.tight_layout()
-    plt.savefig('simulation_results.png')
-    plt.close()
     
-    # Save transaction data
-    agent_data.to_csv('transaction_history.csv', index=False)
-    sim_data.to_csv('simulation_data.csv', index=False)
+    # Save the plot
+    plt.savefig('simulation_results.png', dpi=300, bbox_inches='tight')
+    
+    # Display the plot
+    plt.show()
 
 if __name__ == "__main__":
     asyncio.run(main())
