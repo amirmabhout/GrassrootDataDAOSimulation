@@ -12,7 +12,8 @@ When members use dataDAO tokens to access computations as part of services, thes
 - **The Pie**: A smart contract that stores dataDAO tokens spent on computing services using the Data Pool.
 - **dataDAO Tokens $dDT**: Issued to members when they lock their personal $CRC, up to a maximum proportional to their Contribution Weight. These tokens grant compute access to the Data Pool.
 
-![image](https://github.com/user-attachments/assets/aaaef203-ac5e-4b7c-9a7c-2c7f29b400d3)
+![image](https://github.com/user-attachments/assets/9cce1c16-dea1-4486-8224-25b9f7743e05)
+
 
 
 ### Data Ownership, Privacy and Governance
