@@ -27,17 +27,32 @@ The simulation explores how these different motivations and behaviors impact the
 - Price discovery through market interactions
 - Balance between token minting (data contribution) and token spending (compute usage)
 
-### Agent Types
+### Agent Types and Proportions
 
-- **Degen Users**: Data contributors focused on quick returns. They contribute data to mint $dDT which they typically sell in the market to cash out. A small portion (10%) of these users also provide liquidity to the pool, benefiting from trading fees while waiting for optimal exit prices. These users rarely use the actual compute services.
+The simulation maintains specific proportions of different agent types throughout its runtime:
 
-- **Organizations**: Large entities (like AI companies or research institutions) with significant capital who purchase $dDT solely to access the dataDAO's compute services. They represent the primary demand side of the ecosystem, regularly buying $dDT from the market for service usage.
+- **Degen Users (40%)**: Data contributors focused on quick returns. They initially provide liquidity (10 dDT, 10 xDAI) and immediately sell their remaining 90 dDT. They benefit from trading fees while providing liquidity to the ecosystem.
 
-- **Power Users**: Active participants who use the dataDAO's services more than they contribute data. While they do contribute data and mint $dDT, their compute usage exceeds their minted amount, requiring them to regularly purchase additional $dDT from the market.
+- **Organizations (5%)**: Large entities with significant capital (1000 xDAI initially) who purchase 2 dDT daily for compute services. They represent the primary demand side of the ecosystem.
 
-- **Active Users**: Regular participants who consistently contribute data and use compute services, representing the core user base of the dataDAO. They maintain a balanced approach between contribution and usage.
+- **Power Users (5%)**: Active participants who both contribute and heavily use services. They start with 100 dDT and 100 xDAI, and receive 40% of The Pie distribution which they keep for service usage rather than selling.
 
-- **Casual Users**: Occasional participants who contribute minimal data, mint $dDT, and might later sell their $dDT in the market. They show irregular patterns of engagement with the ecosystem.
+- **Active Users (30%)**: Regular participants who start with 100 dDT. They receive 40% of The Pie distribution which they immediately sell into the market as they don't need additional compute access.
+
+- **Casual Users (20%)**: Occasional participants who start with 100 dDT. They spend 0.1 dDT daily and immediately sell the remaining 0.9 dDT. They receive 20% of The Pie distribution which they also sell immediately.
+
+### The Pie Distribution
+
+The Pie accumulates all spent dDT from compute service usage. Every simulation step:
+- 70% of The Pie's accumulated dDT is distributed to stakeholders:
+  - 40% to Power Users (who keep it for service usage)
+  - 40% to Active Users (who sell it immediately)
+  - 20% to Casual Users (who sell it immediately)
+- 30% remains in The Pie for future governance decisions
+
+### Agent Entry and Growth
+
+New agents are added every 5 steps, with 10 agents per entry, maintaining the above proportions throughout the simulation. This creates a dynamic ecosystem that grows while preserving the intended stakeholder distribution.
 
 ## Simulation Components
 
