@@ -1,7 +1,7 @@
 # Configuration
 CONFIG = {
     'SIM_CONFIG': {
-        'total_steps': 1000,  # Changed from 100 to 300
+        'total_steps': 2000,  # Changed from 100 to 300
         'entry_steps': 5,  # Add agents every 5 steps
         'agents_per_entry': 10,  # Total agents to add per entry
         'fee_rate': 0.003,
