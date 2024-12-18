@@ -111,22 +111,19 @@ The simulation will generate:
 The simulation is highly configurable through environment variables. Key parameters include:
 
 ### Simulation Settings
-- `INITIAL_POOL_TOKENS`: Initial liquidity pool token amount
-- `INITIAL_POOL_DOLLARS`: Initial liquidity pool dollar amount
-- `TOTAL_STEPS`: Number of simulation steps
-- `STEPS_BEFORE_ORGS`: When organizations enter the ecosystem
-- `FEE_RATE`: Liquidity provider fee rate
-- `DEGEN_ENTRY_PRICE`: Price threshold for new degen entry
-- `MAX_DEGENS`: Maximum number of degen agents
+- `TOTAL_STEPS`: Number of simulation steps (default: 2000)
+- `ENTRY_STEPS`: Frequency of new agent entry (default: every 5 steps)
+- `AGENTS_PER_ENTRY`: Number of agents added per entry (default: 10)
+- `FEE_RATE`: Liquidity provider fee rate (default: 0.003)
 
-### Agent Settings
-Each agent type (Degen, Org, Power User, etc.) has configurable parameters for:
-- Initial token and dollar amounts
-- Daily transaction rates
-- Reinvestment rates
-- Population counts
+### Agent Distribution
+- Degen Users: 40% (Initial DDT: 100, Initial xDAI: 10)
+- Organizations: 5% (Initial xDAI: 1000)
+- Power Users: 5% (Initial DDT: 100, Initial xDAI: 100)
+- Active Users: 30% (Initial DDT: 100)
+- Casual Users: 20% (Initial DDT: 100)
 
-See `env.example` for all available configuration options.
+Each agent type has specific behaviors and parameters that influence their interactions with the ecosystem.
 
 ## Results Interpretation
 
